@@ -808,7 +808,7 @@ function buildOrbCards() {
     card.addEventListener("click", () => selectOrb(index));
   });
 
-  rendererBadge.textContent = "initializing renderer";
+  if (rendererBadge) rendererBadge.textContent = "initializing renderer";
 }
 
 const maxRendererPoolSize = compactDeviceQuery.matches ? 3 : Math.min(5, orbData.length);
@@ -929,7 +929,7 @@ function teardownRenderers() {
 }
 
 function reportModeStatus(badgeText) {
-  rendererBadge.textContent = badgeText;
+  if (rendererBadge) rendererBadge.textContent = badgeText;
   if (badgeText.endsWith("online") && rendererReadyAt === null) {
     rendererReadyAt = performance.now();
   }
@@ -1107,7 +1107,8 @@ function initializeRendererPool(token, index = 0) {
       rendererInitializationFailed = true;
       console.error(`Could not initialize orb renderer ${index}.`, error);
     }
-    rendererBadge.textContent = `${webglFamilyLabel()} / loading shader ${rendererPool.length}/${maxRendererPoolSize}`;
+    if (rendererBadge)
+      rendererBadge.textContent = `${webglFamilyLabel()} / loading shader ${rendererPool.length}/${maxRendererPoolSize}`;
     updateLayout();
     initializeRendererPool(token, index + 1);
   });
@@ -1329,7 +1330,7 @@ window.__orbDebug = () => ({
     requested: requestedMode,
     active: activeMode
   },
-  badge: rendererBadge.textContent,
+  badge: rendererBadge?.textContent ?? "",
   renderers: rendererPool.map((renderer) => ({
     seed: renderer.seed?.toFixed(3),
     phase: renderer.phase?.toFixed(3),
