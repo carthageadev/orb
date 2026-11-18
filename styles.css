@@ -759,12 +759,12 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: clamp(16px, 2.6vh, 30px);
+  gap: clamp(18px, 3vh, 38px);
   height: calc(100dvh - var(--topbar-height));
   min-height: calc(100svh - var(--topbar-height));
   height: calc(var(--viewport-height, 100vh) - var(--topbar-height));
   min-height: calc(var(--viewport-height, 100vh) - var(--topbar-height));
-  padding: clamp(20px, 3vh, 40px) 0;
+  padding: clamp(24px, 4vh, 56px) 0;
   overflow: hidden;
   scroll-margin-top: var(--topbar-height);
   scroll-snap-align: start;
@@ -775,14 +775,14 @@ a {
   display: flex;
   flex-direction: column;
   max-width: 720px;
-  gap: 12px;
+  gap: clamp(10px, 1.6vh, 16px);
 }
 
 .study-intro h2 {
   max-width: 640px;
   margin: 0;
   color: #eceae6;
-  font-size: clamp(28px, 3.2vw, 40px);
+  font-size: clamp(30px, 4.6vh, 54px);
   font-weight: 400;
   letter-spacing: -0.065em;
   line-height: 1;
@@ -792,7 +792,7 @@ a {
   max-width: 620px;
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: clamp(13px, 1.7vh, 17px);
   line-height: 1.6;
 }
 
@@ -807,14 +807,14 @@ a {
 
 .study-card {
   min-height: 0;
-  padding: clamp(16px, 2.2vh, 22px) 0 0;
+  padding: clamp(16px, 2.6vh, 30px) 0 0;
   border: 0;
   background: none;
 }
 
 .study-card h3 {
   margin: 0 0 8px;
-  font-size: 17px;
+  font-size: clamp(17px, 2.2vh, 23px);
   font-weight: 500;
   letter-spacing: -0.025em;
 }
@@ -823,7 +823,7 @@ a {
   max-width: 320px;
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: clamp(13px, 1.55vh, 16px);
   line-height: 1.6;
 }
 
@@ -832,10 +832,10 @@ a {
 }
 
 .code-card-header {
-  padding-bottom: 10px;
+  padding-bottom: clamp(8px, 1.2vh, 12px);
   color: #9d9ba2;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 10px;
+  font-size: clamp(10px, 1.1vh, 12px);
 }
 
 .code-card pre {
@@ -843,7 +843,7 @@ a {
   overflow-x: auto;
   color: #c0c8df;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 11px;
+  font-size: clamp(11px, 1.45vh, 14px);
   line-height: 1.7;
 }
 
