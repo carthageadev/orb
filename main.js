@@ -19,9 +19,9 @@ const orbData = [
 
 const layoutByDistance = {
   0: { offset: 0, scale: 1, opacity: 1, className: "is-center" },
-  1: { offset: 150, scale: 0.62, opacity: 0.92, className: "is-near" },
-  2: { offset: 255, scale: 0.36, opacity: 0.68, className: "is-visible" },
-  3: { offset: 330, scale: 0.2, opacity: 0, className: "" }
+  1: { offset: 0.92, scale: 0.62, opacity: 0.92, className: "is-near" },
+  2: { offset: 1.32, scale: 0.36, opacity: 0.62, className: "is-visible" },
+  3: { offset: 1.8, scale: 0.2, opacity: 0, className: "" }
 };
 
 const track = document.querySelector("#orbTrack");
@@ -30,12 +30,9 @@ const previousButton = document.querySelector("#previousOrb");
 const nextButton = document.querySelector("#nextOrb");
 const pauseButton = document.querySelector("#pauseToggle");
 const shuffleButton = document.querySelector("#shuffleButton");
+const gyroButton = document.querySelector("#gyroToggle");
 const rendererBadge = document.querySelector("#rendererBadge");
-const selectedIndexLabel = document.querySelector("#selectedIndexLabel");
 const selectedOrbName = document.querySelector("#selectedOrbName");
-const selectedOrbDescription = document.querySelector("#selectedOrbDescription");
-const selectedOrbTags = document.querySelector("#selectedOrbTags");
-const heroSubtitle = document.querySelector(".hero h1 span");
 const brandSettingsToggle = document.querySelector("#brandSettingsToggle");
 const renderSettings = document.querySelector("#renderSettings");
 const resolutionSetting = document.querySelector("#resolutionSetting");
@@ -52,8 +49,8 @@ const compactDeviceQuery = window.matchMedia("(max-width: 640px), (pointer: coar
 let fidelityValue = 1;
 // Frame-rate cap state. Auto keeps the current behavior (render every rAF);
 // capped modes gate rendering by interval while absolute time still advances.
-// Caps reduce render frequency only: the shader — chromatic lens, rim, and
-// specular passes — renders identically at every FPS setting.
+// Caps reduce render frequency only: the shader (chromatic lens, rim, and
+// specular passes) renders identically at every FPS setting.
 let fpsSetting = FPS_DEFAULT;
 let fpsIntervalMs = 0; // per-render budget in ms; 0 = no cap (auto)
 let lastRenderAt = 0; // rAF timestamp of the last render; 0 = not rendered yet
@@ -63,7 +60,7 @@ const startupStartedAt = performance.now();
 let rendererReadyAt = null;
 let firstRenderAt = null;
 
-// Interactive motion state — opt-in orb rotation driven by pointer position
+// Interactive motion state: opt-in orb rotation driven by pointer position
 // or device orientation. Off by default; no per-frame overhead when disabled.
 let interactiveEnabled = false;
 let interactionPermission = "unknown"; // "unknown" | "granted" | "denied" | "unavailable"
@@ -188,7 +185,7 @@ function createWebGLContext(canvas) {
   // experimental fallback. The GLSL ES 1.00 shader source is context-agnostic
   // and runs unchanged on either family. Each renderer gets a fresh canvas, so
   // requesting webgl2 first can never block the webgl1 fallback, and the
-  // fallback happens entirely within renderer creation — there is no
+  // fallback happens entirely within renderer creation; there is no
   // mid-session backend swap.
   return canvas.getContext("webgl2", attributes)
     || canvas.getContext("webgl", attributes)
@@ -676,12 +673,21 @@ function updateInteractiveHint() {
   if (!interactiveEnabled) {
     interactiveHint.textContent = "Pointer or phone tilt guides the orb.";
   } else if (interactionPermission === "denied") {
-    interactiveHint.textContent = "Sensor permission denied — pointer controls only.";
+    interactiveHint.textContent = "Sensor permission denied, pointer controls only.";
   } else if (interactionPermission === "unavailable") {
-    interactiveHint.textContent = "Gyroscope unavailable — pointer controls only.";
+    interactiveHint.textContent = "Gyroscope unavailable, pointer controls only.";
   } else {
     interactiveHint.textContent = "Pointer or phone tilt guides the orb.";
   }
+}
+
+function updateGyroButton() {
+  if (!gyroButton) return;
+  const sensorActive = interactionPermission === "granted";
+  let label = "Gyro";
+  if (interactiveEnabled) label = sensorActive ? "Gyro on" : "Pointer on";
+  gyroButton.setAttribute("aria-pressed", String(interactiveEnabled));
+  gyroButton.textContent = label;
 }
 
 async function setInteractiveMotion(enabled) {
@@ -709,6 +715,7 @@ async function setInteractiveMotion(enabled) {
   }
 
   updateInteractiveHint();
+  updateGyroButton();
 }
 
 function setRenderSettingsOpen(isOpen) {
@@ -798,10 +805,7 @@ function buildOrbCards() {
     const visual = document.createElement("span");
     visual.className = "orb-visual";
 
-    const label = document.createElement("span");
-    label.className = "orb-label";
-    label.textContent = data.name;
-    card.append(visual, label);
+    card.append(visual);
     track.append(card);
     cards.push(card);
 
@@ -816,7 +820,7 @@ let rendererInitializationFailed = false;
 let gpuEngine = null;
 
 // Explicit renderer mode selection. The requested mode is persisted under a
-// namespaced key (storage access is guarded — it can throw in private or
+// namespaced key (storage access is guarded; it can throw in private or
 // blocked-cookie contexts), while the active mode tracks which backend
 // actually has live renderers. `?forceWebGL` remains a session-only test
 // override and never overwrites the stored selection.
@@ -856,7 +860,7 @@ function writeStoredRenderMode(mode) {
     window.localStorage.setItem(RENDER_MODE_STORAGE_KEY, mode);
     window.localStorage.setItem(RENDER_MODE_EXPLICIT_KEY, "1");
   } catch {
-    // storage unavailable — the selection still applies for this session
+    // storage unavailable; the selection still applies for this session
   }
 }
 
@@ -950,7 +954,7 @@ function webglFamilyLabel() {
 function handleWebGPUDeviceLost() {
   if (activeMode !== "webgpu") return;
   console.warn("WebGPU device lost; renderer stopped. Choose WebGL to continue.");
-  reportModeStatus("webgpu / device lost — choose WebGL");
+  reportModeStatus("webgpu / device lost, choose WebGL");
   teardownRenderers();
 }
 
@@ -1002,7 +1006,7 @@ async function initializeWebGPU(token) {
       return;
     }
     if (!engine) {
-      reportModeStatus("webgpu / unavailable — choose WebGL");
+      reportModeStatus("webgpu / unavailable, choose WebGL");
       return;
     }
     gpuEngine = engine;
@@ -1058,13 +1062,13 @@ async function initializeWebGPU(token) {
       updateLayout();
       return;
     }
-    reportModeStatus(engine.lost ? "webgpu / device lost — choose WebGL" : "webgpu / unavailable — choose WebGL");
+    reportModeStatus(engine.lost ? "webgpu / device lost, choose WebGL" : "webgpu / unavailable, choose WebGL");
     teardownRenderers();
   } catch (error) {
     if (token !== rendererLifecycleToken) return;
     console.error("WebGPU unavailable:", error);
     teardownRenderers();
-    reportModeStatus("webgpu / unavailable — choose WebGL");
+    reportModeStatus("webgpu / unavailable, choose WebGL");
   }
 }
 
@@ -1119,21 +1123,7 @@ function getVisibleDistance() {
 }
 
 function updateMeta() {
-  const data = orbData[selectedIndex];
-  selectedIndexLabel.textContent = `${String(selectedIndex + 1).padStart(2, "0")} / ${String(orbData.length).padStart(2, "0")}`;
-  selectedOrbName.textContent = data.name;
-  selectedOrbDescription.textContent = data.description;
-  heroSubtitle.style.setProperty("--title-c0", data.b);
-  heroSubtitle.style.setProperty("--title-c1", data.c);
-  heroSubtitle.style.setProperty("--title-c2", data.a);
-  heroSubtitle.style.setProperty("--title-c3", data.b);
-  heroSubtitle.style.setProperty("--title-angle", `${118 + selectedIndex * 17}deg`);
-  selectedOrbTags.replaceChildren(...data.tags.map((tag) => {
-    const pill = document.createElement("span");
-    pill.className = "meta-pill";
-    pill.textContent = tag;
-    return pill;
-  }));
+  if (selectedOrbName) selectedOrbName.textContent = orbData[selectedIndex].name;
 }
 
 // Side cards are CSS-scaled by the carousel (1 / .62 / .36), so rendering them
@@ -1180,7 +1170,7 @@ function updateLayout() {
     const absoluteDistance = Math.abs(distance);
     const layout = layoutByDistance[Math.min(absoluteDistance, 3)];
     const offset = distance < 0 ? -layout.offset : layout.offset;
-    card.style.setProperty("--orb-offset", `${offset}px`);
+    card.style.setProperty("--orb-offset", `calc(var(--orb-size) * ${offset})`);
     card.style.setProperty("--orb-scale", `${layout.scale}`);
     card.style.setProperty("--orb-opacity", `${layout.opacity}`);
     card.classList.toggle("is-visible", absoluteDistance <= maxVisibleDistance);
@@ -1217,7 +1207,7 @@ nextButton.addEventListener("click", () => shiftOrb(1));
 shuffleButton.addEventListener("click", randomizeSeeds);
 pauseButton.addEventListener("click", () => {
   paused = !paused;
-  pauseButton.textContent = paused ? "Resume field" : "Pause field";
+  pauseButton.textContent = paused ? "Resume" : "Pause";
   needsRender = true;
   quality.reset();
 });
@@ -1254,11 +1244,16 @@ if (orbStage && "IntersectionObserver" in window) {
   stageObserver.observe(orbStage);
 }
 
+gyroButton?.addEventListener("click", async () => {
+  await setInteractiveMotion(!interactiveEnabled);
+  updateGyroButton();
+});
+
 setupRenderSettings();
 buildOrbCards();
 updateLayout();
 switchRendererMode(resolveDefaultRenderMode(), { persist: false });
-pauseButton.textContent = paused ? "Resume field" : "Pause field";
+pauseButton.textContent = paused ? "Resume" : "Pause";
 
 let lastTime = 0;
 let lastFrameNow = 0;
@@ -1312,7 +1307,7 @@ function frame(now) {
     } catch (error) {
       console.error("Renderer frame failed:", error);
       // Reset the anchor so capped mode retries on the next rAF instead of
-      // waiting out the whole interval. Auto (interval 0) is unaffected — it
+      // waiting out the whole interval. Auto (interval 0) is unaffected, it
       // is due every frame regardless.
       lastRenderAt = 0;
       if (activeMode === "webgpu") handleWebGPUDeviceLost();

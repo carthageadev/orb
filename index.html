@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Orb of Fate, an original raw WebGL and GLSL study of glass, stars, and motion."
+      content="An original raw WebGL and GLSL study of glass, stars, and motion."
     />
     <meta name="theme-color" content="#070707" />
     <link rel="icon" href="./site-icon.svg" type="image/svg+xml" />
-    <title>Orb of Fate: GLSL study</title>
+    <title>orb: GLSL study</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -17,54 +17,124 @@
       <header class="topbar">
         <div class="brand">
           <span class="brand-mark" aria-hidden="true">✦</span>
-          <span>orb-of-fate</span>
+          <span>orb</span>
         </div>
-        <a class="quiet-link" href="#study">Read the study <span aria-hidden="true">↗</span></a>
+
+        <div class="topbar-actions">
+          <button
+            class="debug-toggle"
+            id="brandSettingsToggle"
+            type="button"
+            aria-label="Open quality settings"
+            aria-expanded="false"
+            aria-controls="renderSettings"
+            aria-haspopup="dialog"
+          >
+            Debug
+          </button>
+          <a class="quiet-link" href="#study">Read the study <span aria-hidden="true">↗</span></a>
+        </div>
+
+        <div class="render-settings" id="renderSettings" role="dialog" aria-label="Quality settings" hidden>
+          <div class="render-settings-header">
+            <strong>Quality</strong>
+            <span>GPU budget</span>
+          </div>
+
+          <label class="render-setting" for="resolutionSetting">
+            <span>Resolution</span>
+            <select id="resolutionSetting">
+              <option value="auto">Auto, adaptive</option>
+              <option value="low">Low, 58%</option>
+              <option value="balanced">Balanced, 70%</option>
+              <option value="high">High, 84%</option>
+              <option value="full">Full, 100%</option>
+            </select>
+          </label>
+
+          <label class="render-setting" for="fidelitySetting">
+            <span>Fidelity</span>
+            <select id="fidelitySetting">
+              <option value="lite">Lite</option>
+              <option value="balanced">Balanced</option>
+              <option value="full" selected>Full</option>
+            </select>
+          </label>
+
+          <label class="render-setting" for="lens-setting">
+            <span>Lens</span>
+            <select id="lens-setting" aria-describedby="renderSettingsHint">
+              <option value="on" selected>On</option>
+              <option value="off">Off</option>
+            </select>
+          </label>
+
+          <label class="render-setting" for="fps-setting">
+            <span>Frame rate</span>
+            <select id="fps-setting">
+              <option value="auto" selected>Auto</option>
+              <option value="30">30 FPS</option>
+              <option value="20">20 FPS</option>
+              <option value="15">15 FPS</option>
+            </select>
+          </label>
+
+          <div class="render-setting" id="renderModeSetting">
+            <span>Renderer</span>
+            <button
+              type="button"
+              class="render-mode-toggle"
+              id="renderModeToggle"
+              aria-label="Switch renderer mode"
+            >
+              <span class="render-mode-current" id="renderModeValue">webgpu</span>
+              <span class="render-mode-switch" id="renderModeSwitch">switch to WebGL</span>
+            </button>
+          </div>
+
+          <label class="render-setting" for="debug-setting">
+            <span>Debug overlay</span>
+            <input type="checkbox" id="debug-setting" />
+          </label>
+
+          <p class="render-settings-note" id="renderSettingsHint">
+            Frame caps skip frames only. Lens off is a lighter visual pass.
+          </p>
+        </div>
       </header>
 
       <main>
         <div class="hero-viewport">
-          <section class="hero" id="experience">
-            <h1>Quiet light,<br /><span>uncertain orbit.</span></h1>
-            <p class="lede">
-              A small fragment-shader study in glass, parallax, and drifting star fields, built from
-              scratch with no image textures.
-            </p>
-
-            <div class="hero-actions" aria-label="Shader controls">
-              <button class="button button-primary" id="pauseToggle" type="button">
-                Pause field
+          <section class="orb-stage" id="experience" aria-label="Orb carousel">
+            <div class="orb-row">
+              <button
+                class="carousel-arrow"
+                id="previousOrb"
+                type="button"
+                aria-label="Previous orb"
+              >
+                ‹
               </button>
-              <button class="button button-secondary" id="shuffleButton" type="button">
-                Re-seed orbs
+              <div class="orb-track" id="orbTrack"></div>
+              <button
+                class="carousel-arrow"
+                id="nextOrb"
+                type="button"
+                aria-label="Next orb"
+              >
+                ›
               </button>
             </div>
-          </section>
 
-          <section class="orb-stage" aria-label="Orb carousel">
-            <button
-              class="carousel-arrow"
-              id="previousOrb"
-              type="button"
-              aria-label="Previous orb"
-            >
-              ‹
-            </button>
-            <div class="orb-track" id="orbTrack"></div>
-            <button
-              class="carousel-arrow"
-              id="nextOrb"
-              type="button"
-              aria-label="Next orb"
-            >
-              ›
-            </button>
-
-            <div class="orb-meta" aria-live="polite">
-              <p class="meta-kicker" id="selectedIndexLabel">01 / 11</p>
-              <h2 id="selectedOrbName">Aster</h2>
-              <p id="selectedOrbDescription">A pale field with a soft blue edge.</p>
-              <div class="meta-pills" id="selectedOrbTags" aria-label="Selected orb traits"></div>
+            <div class="orb-meta">
+              <h1 id="selectedOrbName" aria-live="polite">Aster</h1>
+              <div class="stage-actions">
+                <button class="stage-action" id="pauseToggle" type="button">Pause</button>
+                <button class="stage-action" id="shuffleButton" type="button">Shuffle</button>
+                <button class="stage-action" id="gyroToggle" type="button" aria-pressed="false">
+                  Gyro
+                </button>
+              </div>
             </div>
           </section>
         </div>
@@ -116,6 +186,16 @@
         </section>
       </main>
     </div>
+
+    <aside
+      class="perf-debug-panel"
+      id="perfDebugPanel"
+      aria-labelledby="perfDebugTitle"
+      hidden
+    >
+      <h2 id="perfDebugTitle">Performance</h2>
+      <pre id="perfDebugOutput"></pre>
+    </aside>
 
     <script>
       // Slot paging: one scroll gesture moves between the hero and the study.
