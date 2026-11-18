@@ -20,6 +20,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
   background: var(--bg);
 }
 
@@ -345,6 +346,9 @@ a {
   min-height: calc(100vh - var(--topbar-height));
   height: calc(var(--viewport-height, 100vh) - var(--topbar-height));
   min-height: calc(var(--viewport-height, 100vh) - var(--topbar-height));
+  scroll-margin-top: var(--topbar-height);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .hero {
@@ -751,9 +755,24 @@ a {
   letter-spacing: 0.03em;
 }
 
-.study-section,
 .about-section {
   padding: clamp(96px, 12vw, 168px) 0;
+}
+
+.study-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(12px, 2vh, 22px);
+  height: calc(100dvh - var(--topbar-height));
+  min-height: calc(100svh - var(--topbar-height));
+  height: calc(var(--viewport-height, 100vh) - var(--topbar-height));
+  min-height: calc(var(--viewport-height, 100vh) - var(--topbar-height));
+  padding: clamp(14px, 2.4vh, 32px) 0;
+  overflow: hidden;
+  scroll-margin-top: var(--topbar-height);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .section-heading {
@@ -789,14 +808,15 @@ a {
 
 .study-grid {
   display: grid;
+  flex: 0 0 auto;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 74px;
+  margin-top: 0;
 }
 
 .study-card {
-  min-height: 240px;
-  padding: 24px;
+  min-height: 0;
+  padding: clamp(16px, 2.4vh, 24px);
   border: 1px solid var(--line-soft);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.008));
 }
@@ -1118,7 +1138,58 @@ a {
   }
 }
 
-/* Study section: one scroll gesture pages from the hero to the study. */
-.study-section {
-  scroll-margin-top: var(--topbar-height);
+/* Short desktop windows: compact the study so both slots stay one screen tall. */
+@media (min-width: 901px) and (max-height: 700px) {
+  .study-section {
+    gap: 12px;
+    padding: 14px 0;
+  }
+
+  .section-heading > p:last-child {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .study-card {
+    padding: 18px;
+  }
+
+  .study-card h3 {
+    margin: 28px 0 10px;
+    font-size: 20px;
+  }
+
+  .study-card p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .code-card-header {
+    padding: 11px 16px;
+  }
+
+  .code-card pre {
+    padding: 16px 20px 18px;
+    font-size: 11px;
+    line-height: 1.65;
+  }
+}
+
+/* Narrow screens: the study keeps its full content and scrolls normally. */
+@media (max-width: 900px) {
+  html {
+    scroll-snap-type: none;
+  }
+
+  .hero-viewport {
+    scroll-margin-top: 0;
+    scroll-snap-align: none;
+  }
+
+  .study-section {
+    height: auto;
+    min-height: 0;
+    padding: clamp(64px, 10vw, 112px) 0;
+    overflow: visible;
+  }
 }
