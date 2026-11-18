@@ -70,7 +70,7 @@
         </div>
 
         <section class="study-section" id="study">
-          <div class="section-heading">
+          <div class="study-intro">
             <h2>Dual layers make the illusion.</h2>
             <p>
               The hero pass reconstructs a glass sphere from screen coordinates, samples a rotating
@@ -80,7 +80,6 @@
 
           <div class="study-grid">
             <article class="study-card">
-              <span class="card-number">01</span>
               <h3>Sphere mask</h3>
               <p>
                 Reconstruct the front hemisphere and the refracted back-wall hit from the fragment
@@ -88,7 +87,6 @@
               </p>
             </article>
             <article class="study-card">
-              <span class="card-number">02</span>
               <h3>Star field</h3>
               <p>
                 A tilted galaxy band, nebula pockets, dust lanes, three star scales, and a pulsar are
@@ -96,7 +94,6 @@
               </p>
             </article>
             <article class="study-card">
-              <span class="card-number">03</span>
               <h3>Liquid shell</h3>
               <p>
                 The lens falloff grows toward grazing angles, then separate R/G/B samples create the
@@ -108,7 +105,6 @@
           <div class="code-card">
             <div class="code-card-header">
               <span>hero.frag.glsl</span>
-              <span class="code-language">GLSL ES 1.00</span>
             </div>
             <pre><code><span class="code-keyword">float</span> k = uLens * fall * swell;
 <span class="code-keyword">float</span> cR = <span class="code-number">1.4</span> * (<span class="code-number">1.0</span> + <span class="code-number">0.06</span> * sin(uTime * <span class="code-number">1.3</span> + uPhase));
